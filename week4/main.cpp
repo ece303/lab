@@ -29,21 +29,22 @@ void setup() {
 
 void loop() {
   // Adjust the PWM signal's duty cycle
-  if (currentDutyCycle > 1.01) {
-    currentDutyCycle = 0.05;  // Reset duty cycle if it exceeds 1
-  } 
-  OCR4A = (ICR4 * currentDutyCycle);  // Set the duty cycle for the PWM signal
-  dutyCyclePercentage = currentDutyCycle * 100;  // Convert duty cycle to percentage
-  currentDutyCycle += 0.05;  // Increment duty cycle
+  while (currentDutyCycle < 1) {
+    //currentDutyCycle = 0.05;  // Reset duty cycle if it exceeds 1
+   
+    OCR4A = (ICR4 * currentDutyCycle);  // Set the duty cycle for the PWM signal
+    dutyCyclePercentage = currentDutyCycle * 100;  // Convert duty cycle to percentage
+    currentDutyCycle += 0.05;  // Increment duty cycle
 
-  delay(2000);
-  
-  // Read the voltage across the photoresistor
-  float voltageAcrossFixedResistor;
-  float currentThroughFixedResistor;
-  float voltageAcrossPhotoresistor;
-  float resistanceOfPhotoresistor;
+    delay(2000);
+    
+    // Read the voltage across the photoresistor
+    float voltageAcrossFixedResistor;
+    float currentThroughFixedResistor;
+    float voltageAcrossPhotoresistor;
+    float resistanceOfPhotoresistor;
 
-  // Print the data to the serial monitor
-  Serial.print(String(dutyCyclePercentage) + ", " + String(voltageAcrossFixedResistor) + ", " + String(voltageAcrossPhotoresistor) + "\n");
+    // Print the data to the serial monitor
+    Serial.print(String(dutyCyclePercentage) + ", " + String(voltageAcrossFixedResistor) + ", " + String(voltageAcrossPhotoresistor) + "\n");
+  }
 }
