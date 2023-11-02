@@ -1,0 +1,16 @@
+# "####" parts for average 
+flag,avg = 0,0 ####
+for k in range(255):
+    arduino.reset_output_buffer()
+    arduino.reset_input_buffer()
+    arduino.write(b'1')
+    time.sleep(0.5)
+    a = int(arduino.readline().decode("utf-8"))
+    v = float(a)/1023.0*5.0
+    voltage.append(v)
+    print(k,a)
+    avg += a ####
+    flag += 1 ####
+    if flag == 5: ####
+        print(f" average : {avg/5}") ####
+        flag, avg = 0,0 ####
