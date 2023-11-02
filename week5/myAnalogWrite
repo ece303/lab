@@ -1,0 +1,23 @@
+void myAnalogWrite(int pin, int value) {
+    
+    if (pin == 5) {
+        
+        DDRE |= (1 << PE3);
+
+        
+        TCCR3A = (TCCR3A & ~(1 << COM3C0)) | (1 << COM3C1);
+
+        
+        TCCR3A = (TCCR3A & ~(1 << WGM30)) | (1 << WGM31);
+        TCCR3B = (TCCR3B & ~(1 << WGM32)) | (1 << WGM33);
+
+        
+        TCCR3B = (TCCR3B & ~((1 << CS32) | (1 << CS31))) | (1 << CS30);
+
+       
+        ICR3 = 0xFFFF; 
+
+        
+        OCR3C = value;
+    }
+}
