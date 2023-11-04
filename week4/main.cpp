@@ -39,10 +39,15 @@ void loop() {
     delay(2000);
     
     // Read the voltage across the photoresistor
-    float voltageAcrossFixedResistor;
-    float currentThroughFixedResistor;
-    float voltageAcrossPhotoresistor;
-    float resistanceOfPhotoresistor;
+    //float voltageAcrossFixedResistor;
+    //float currentThroughFixedResistor;
+    //float voltageAcrossPhotoresistor;
+    //float resistanceOfPhotoresistor;
+    float voltageAcrossFixedResistor = analogRead(photoresistorPin) * (5.0 / 1023.0);  
+    float currentThroughFixedResistor = (voltageAcrossFixedResistor / fixedResistorValue) * 1000000; 
+    float voltageAcrossPhotoresistor = 5 - voltageAcrossFixedResistor; 
+    float resistanceOfPhotoresistor = ((5 * fixedResistorValue) / voltageAcrossFixedResistor) - fixedResistorValue; 
+
 
     // Print the data to the serial monitor
     Serial.print(String(dutyCyclePercentage) + ", " + String(voltageAcrossFixedResistor) + ", " + String(voltageAcrossPhotoresistor) + "\n");
