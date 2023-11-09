@@ -1,0 +1,15 @@
+
+x_limit = [0 100]; % DC range (Duty Cycle 0-100%)
+y_limit_V_pc = [0 5]; % V_pc range
+y_limit_I = [0 max(I)]; % 
+y_limit_R = [0 max(R)]; % 
+
+
+xlim(app.UIAxes, x_limit);
+ylim(app.UIAxes, y_limit_V_pc);
+
+xlim(app.UIAxes2, x_limit);
+ylim(app.UIAxes2, y_limit_I);
+
+xlim(app.UIAxes3, x_limit);
+ylim(app.UIAxes3, y_limit_R);
