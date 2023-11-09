@@ -1,0 +1,27 @@
+            arduino = serialport("COM6", 9600, "Timeout", 15);
+    pause(1)
+    num_points = 255;
+    DC = zeros(1, num_points);
+    V_res = zeros(1, num_points);
+    V_pc = zeros(1, num_points);
+    I = zeros(1, num_points);
+    R = zeros(1, num_points);
+
+    for K = 0:(num_points - 1)
+        DC(K + 1) = K / 255 * 100; % Duty Cycle
+        flush(arduino)
+        write(arduino, 2, 'string');
+        pause(0.5)
+        a = read(arduino, 4, 'string');
+        flush(arduino)
+        V_res(K + 1) = str2double(a) / 1023 * 5;
+        V_pc(K + 1) = 5 - V_res(K + 1);
+        I(K + 1) = V_res(K + 1) / 500 * 1000; % Current (mA)
+        R(K + 1) = V_pc(K + 1) / I(K + 1); % Resistance (kOhms)
+        app.DutyCycleEditField.Value = DC(K + 1);
+        plot(app.UIAxes, DC(1:(K + 1)), V_pc(1:(K + 1)), 'bo', 'MarkerFaceColor', 'b')
+        plot(app.UIAxes2, DC(1:(K + 1)), I(1:(K + 1)), 'bo', 'MarkerFaceColor', 'b')
+        plot(app.UIAxes3, DC(1:(K + 1)), R(1:(K + 1)), 'bo', 'MarkerFaceColor', 'b')
+    end
+
+    delete(arduino)
