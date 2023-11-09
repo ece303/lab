@@ -13,3 +13,16 @@ ylim(app.UIAxes2, y_limit_I);
 
 xlim(app.UIAxes3, x_limit);
 ylim(app.UIAxes3, y_limit_R);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+hold(app.UIAxes, 'on');
+hold(app.UIAxes2, 'on');
+hold(app.UIAxes3, 'on');
+
+
+hold(app.UIAxes, 'off');
+hold(app.UIAxes2, 'off');
+hold(app.UIAxes3, 'off');
