@@ -1,0 +1,91 @@
+#include <Arduino.h>
+
+// Class to handle digital pin operations and ADC
+class DigitalPin 
+{
+    public:
+        DigitalPin(int pin);  // Constructor to initialize the digital pin.
+        void startADC(); // Method to configure ADC.
+        int readADC(); // Method to read ADC values.
+
+    private:
+        int _pin; // Pin number associated with this instance.
+};
+
+// Class to handle PWM control for the LED
+class PWMPin 
+{
+    public:
+        PWMPin(int pin, int timer);  // Constructor to initialize the PWM pin.
+        void setDutyCycle(float dutyCycle); // Method to set the duty cycle for PWM.
+
+    private:
+        int _pin; // Pin number associated with this instance.
+        volatile uint16_t *_OCR; // Pointer to Output Compare Register for PWM control.
+};
+
+DigitalPin::DigitalPin(int pin) : _pin(pin) {}
+
+void DigitalPin::startADC() {
+    // Configure ADC registers based on the microcontroller specifications.
+    ADCSRA |= (1 << ADEN);  // Enable ADC
+    ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  // Set ADC prescaler to 128
+    ADMUX |= (1 << REFS0);  // Set reference voltage to AVcc
+    ADMUX = (ADMUX & 0xF8) | (_pin - A0);  // Select ADC channel corresponding to pin
+}
+
+int DigitalPin::readADC() {
+    ADCSRA |= (1 << ADSC);  // Start conversion
+    while (ADCSRA & (1 << ADSC));  // Wait for conversion to finish
+    return ADC;  // Return the read value
+}
+
+PWMPin::PWMPin(int pin, int timer) : _pin(pin) {
+    // Configure Timer/Counter based on the microcontroller specifications.
+    pinMode(_pin, OUTPUT);
+    if (timer == 4) {
+        TCCR4A = 0b10000010; 
+        TCCR4B = 0b00010010; 
+        TCNT4 = 0; 
+        ICR4 = 400; 
+        _OCR = &OCR4A;
+    }
+    // Add configuration for other timers if necessary
+}
+
+void PWMPin::setDutyCycle(float dutyCycle) {
+    *_OCR = (ICR4 * dutyCycle);  // Set the duty cycle for the PWM signal
+}
+
+// Create DigitalPin and PWMPin objects
+DigitalPin photoresistorPin(A0); // Photoresistor connected to pin A0
+PWMPin ledPin(6, 4); // LED connected to pin 6 with timer 4
+
+int fixedResistorValue = 10000;  // Resistance value of the 10kΩ resistor used in voltage divider
+float currentDutyCycle = 0.0; // Current duty cycle, ranging from 0 to 1
+
+void setup() {
+    Serial.begin(9600);
+    Serial.println("Duty Cycle(%), Voltage across 10kΩ Resistor, Voltage across Photoresistor");
+    photoresistorPin.startADC(); // Configure ADC
+}
+
+void loop() {
+    while (currentDutyCycle < 1) {
+        ledPin.setDutyCycle(currentDutyCycle);  // Set the duty cycle for the PWM signal
+        float dutyCyclePercentage = currentDutyCycle * 100;  // Convert duty cycle to percentage
+        currentDutyCycle += 0.05;  // Increment duty cycle
+
+        delay(2000);
+        
+        // Read the voltage across the photoresistor
+        int photoresistorValue = photoresistorPin.readADC();
+        float voltageAcrossFixedResistor = photoresistorValue * (5.0 / 1023.0);  
+        float currentThroughFixedResistor = (voltageAcrossFixedResistor / fixedResistorValue) * 1000000; 
+        float voltageAcrossPhotoresistor = 5 - voltageAcrossFixedResistor; 
+        float resistanceOfPhotoresistor = ((5 * fixedResistorValue) / voltageAcrossFixedResistor) - fixedResistorValue; 
+
+        // Print the data to the serial monitor
+        Serial.print(String(dutyCyclePercentage) + ", " + String(voltageAcrossFixedResistor) + ", " + String(voltageAcrossPhotoresistor) + "\n");
+    }
+}
